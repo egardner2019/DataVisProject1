@@ -10,15 +10,68 @@
   </head>
   <body>
     <main>
-      <h1>Health in the USA</h1>
+      <h1>Data Visualization Project 1: Health in the USA</h1>
+      <h2>Created by Emma Gardner</h2>
+      <p>
+        This project's data was retrieved from the
+        <a href="https://www.cdc.gov/dhdsp/maps/atlas/index.htm"
+          >US Heart and Stroke Atlas</a
+        >. The <a href="https://d3js.org/">D3 JavaScript library</a> is used to
+        visualize the data.
+      </p>
 
-      <!-- TODO: Add SVG drawing areas for the charts/graphs -->
+      <!-- TODO: add work for county type (urban, rural, etc.) -->
+      <label for="attribute1">Attribute 1:</label>
+      <select name="attribute1" id="attribute1">
+        <option value="poverty_perc">Poverty Percentage</option>
+        <option value="median_household_income">Median Household Income</option>
+        <option value="education_less_than_high_school_percent">Education Less Than High School Percent</option>
+        <option value="air_quality">Air Quality</option>
+        <option value="park_access">Park Access</option>
+        <option value="percent_inactive">Percent Inactive</option>
+        <option value="percent_smoking">Percent Smoking</option>
+        <option value="elderly_percentage">Elderly Percentage</option>
+        <option value="number_of_hospitals">Number of Hospitals</option>
+        <option value="number_of_primary_care_physicians">Number of Primary Care Physicians</option>
+        <option value="percent_no_heath_insurance">Percent with No Health Insurance</option>
+        <option value="percent_high_blood_pressure">Percent with High Blood Pressure</option>
+        <option value="percent_coronary_heart_disease">Percent with Coronary Heart Disease</option>
+        <option value="percent_stroke">Percent Stroke</option>
+        <option value="percent_high_cholesterol">Percent High Cholesterol</option>
+      </select>
+
+      <label for="attribute2">Attribute 2:</label>
+      <select name="attribute2" id="attribute2">
+        <option value="poverty_perc">Poverty Percentage</option>
+        <option value="median_household_income">Median Household Income</option>
+        <option value="education_less_than_high_school_percent">Education Less Than High School Percent</option>
+        <option value="air_quality">Air Quality</option>
+        <option value="park_access">Park Access</option>
+        <option value="percent_inactive">Percent Inactive</option>
+        <option value="percent_smoking">Percent Smoking</option>
+        <option value="elderly_percentage">Elderly Percentage</option>
+        <option value="number_of_hospitals">Number of Hospitals</option>
+        <option value="number_of_primary_care_physicians">Number of Primary Care Physicians</option>
+        <option value="percent_no_heath_insurance">Percent with No Health Insurance</option>
+        <option value="percent_high_blood_pressure">Percent with High Blood Pressure</option>
+        <option value="percent_coronary_heart_disease">Percent with Coronary Heart Disease</option>
+        <option value="percent_stroke">Percent Stroke</option>
+        <option value="percent_high_cholesterol">Percent High Cholesterol</option>
+      </select>
+
+      <!-- Divs for the charts/graphs -->
+      <div id="histogram1"></div>
+      <div id="histogram2"></div>
+      <div id="scatterplot"></div>
+      <div id="chloropleth1"></div>
+      <div id="chloropleth2"></div>
     </main>
 
     <!-- Include the D3 bundle -->
     <script src="js/d3.v6.min.js"></script>
 
     <script src="js/main.js"></script>
+    <script src="js/histogram.js"></script>
     <!-- TODO: include the js files to be created for the graphs/charts -->
   </body>
 </html>
