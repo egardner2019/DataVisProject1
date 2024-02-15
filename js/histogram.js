@@ -59,7 +59,7 @@ class Histogram {
 
   updateVis() {
     const vis = this;
-
+    
     vis.data = vis.data.filter((d) => d[vis.attributeName] != -1);
 
     vis.x.domain([0, d3.max(vis.data, (d) => d[vis.attributeName])]);

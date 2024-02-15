@@ -65,10 +65,37 @@ const attributes = {
   },
 };
 
-d3.csv("data/national_health_data.csv")
+Promise.all([
+  d3.json("data/counties-10m.json"),
+  d3.csv("data/national_health_data.csv"),
+])
   .then((data) => {
-    // Process the data
-    data.forEach((d) => {
+    const geoData = data[0];
+    const countiesData = data[1];
+
+    const attributesAvailable = [
+      "cnty_fips",
+      "display_name",
+      "poverty_perc",
+      "median_household_income",
+      "education_less_than_high_school_percent",
+      "air_quality",
+      "park_access",
+      "percent_inactive",
+      "percent_smoking",
+      "urban_rural_status",
+      "elderly_percentage",
+      "number_of_hospitals",
+      "number_of_primary_care_physicians",
+      "percent_no_heath_insurance",
+      "percent_high_blood_pressure",
+      "percent_coronary_heart_disease",
+      "percent_stroke",
+      "percent_high_cholesterol",
+    ];
+
+    // Process the countiesData
+    countiesData.forEach((d) => {
       // Convert to numbers
       d.cnty_fips = +d.cnty_fips;
       d.poverty_perc = +d.poverty_perc;
@@ -88,6 +115,18 @@ d3.csv("data/national_health_data.csv")
       d.percent_coronary_heart_disease = +d.percent_coronary_heart_disease;
       d.percent_stroke = +d.percent_stroke;
       d.percent_high_cholesterol = +d.percent_high_cholesterol;
+    });
+
+    // Combine the datasets
+    geoData.objects.counties.geometries.forEach((geo) => {
+      countiesData.forEach((county) => {
+        // If the IDs match, add all of the attributes data
+        if (geo.id == county.cnty_fips) {
+          attributesAvailable.forEach((attribute) => {
+            geo.properties[attribute] = county[attribute];
+          });
+        }
+      });
     });
 
     const attribute1Select = document.getElementById("attribute1Select");
@@ -111,24 +150,32 @@ d3.csv("data/national_health_data.csv")
       {
         parentElement: "#histogram1",
       },
-      data,
+      countiesData,
       attribute1Select.value
     );
     const histogram2 = new Histogram(
       {
         parentElement: "#histogram2",
       },
-      data,
+      countiesData,
       attribute2Select.value
     );
     const scatterplot = new Scatterplot(
       {
         parentElement: "#scatterplot",
       },
-      data,
+      countiesData,
       attribute1Select.value,
       attribute2Select.value
     );
+    const choropleth1 = new Choropleth({ 
+      parentElement: '#choropleth1',   
+      color: attributes[attribute1Select.value].color
+    }, geoData, attribute1Select.value, 1);
+    const choropleth2 = new Choropleth({ 
+      parentElement: '#choropleth2', 
+      color: attributes[attribute2Select.value].color  
+    }, geoData, attribute2Select.value, 2);
     // TODO: add work for barchart for urban/rural status
 
     // Add the onchange events to the dropdowns
@@ -137,16 +184,26 @@ d3.csv("data/national_health_data.csv")
       histogram1.attributeName = event.target.value;
       histogram1.updateVis();
 
+      // Update the scatterplot
       scatterplot.attribute1Name = event.target.value;
       scatterplot.updateVis();
+
+      // Update the first choropleth map
+      choropleth1.attributeName = event.target.value;
+      choropleth1.updateVis();
     };
     attribute2Select.onchange = (event) => {
       // Update the histogram for the second attribute
       histogram2.attributeName = event.target.value;
       histogram2.updateVis();
 
+      // Update the scatterplot
       scatterplot.attribute2Name = event.target.value;
       scatterplot.updateVis();
+
+      // Update the second choropleth map
+      choropleth2.attributeName = event.target.value;
+      choropleth2.updateVis();
     };
 
     // TODO: Create the instances of the charts/graphs
