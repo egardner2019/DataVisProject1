@@ -5,7 +5,7 @@ class Choropleth {
       containerWidth: _config.containerWidth || 800,
       containerHeight: _config.containerHeight || 500,
       margin: _config.margin || { top: 10, right: 10, bottom: 10, left: 10 },
-      color: _config.color,
+      color: attributes[_attributeName].color,
       tooltipPadding: 10,
       legendBottom: 20,
       legendLeft: 50,
@@ -135,13 +135,16 @@ class Choropleth {
   updateVis() {
     const vis = this;
 
-    const filteredData = 
-      vis.data.objects.counties.geometries.filter(
-        (d) => d.properties[vis.attributeName] != -1
-      );
+    vis.config.color = attributes[vis.attributeName].color;
+
+    const filteredData = vis.data.objects.counties.geometries.filter(
+      (d) => d.properties[vis.attributeName] != -1
+    );
 
     vis.legendTitle = vis.legend
-      .append("text")
+      .selectAll(".legend-title")
+      .data([vis.attributeName])
+      .join("text")
       .attr("class", "legend-title")
       .attr("dy", ".35em")
       .attr("y", -10)
@@ -163,8 +166,7 @@ class Choropleth {
       .attr("id", "counties")
       .selectAll("path")
       .data(topojson.feature(vis.us, vis.us.objects.counties).features)
-      .enter()
-      .append("path")
+      .join("path")
       .attr("d", vis.path)
       // .attr("class", "county-boundary")
       .attr("fill", (d) => {

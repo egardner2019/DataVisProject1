@@ -168,14 +168,22 @@ Promise.all([
       attribute1Select.value,
       attribute2Select.value
     );
-    const choropleth1 = new Choropleth({ 
-      parentElement: '#choropleth1',   
-      color: attributes[attribute1Select.value].color
-    }, geoData, attribute1Select.value, 1);
-    const choropleth2 = new Choropleth({ 
-      parentElement: '#choropleth2', 
-      color: attributes[attribute2Select.value].color  
-    }, geoData, attribute2Select.value, 2);
+    const choropleth1 = new Choropleth(
+      {
+        parentElement: "#choropleth1"
+      },
+      geoData,
+      attribute1Select.value,
+      1
+    );
+    const choropleth2 = new Choropleth(
+      {
+        parentElement: "#choropleth2"
+      },
+      geoData,
+      attribute2Select.value,
+      2
+    );
     // TODO: add work for barchart for urban/rural status
 
     // Add the onchange events to the dropdowns

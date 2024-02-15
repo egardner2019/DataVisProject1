@@ -99,7 +99,7 @@ class Scatterplot {
       .attr("class", "point")
       .attr("cx", (d) => vis.x(d[vis.attribute2Name]))
       .attr("cy", (d) => vis.y(d[vis.attribute1Name]))
-      .attr("r", 5)
+      .attr("r", 2)
       .style("fill", vis.config.color);
   }
 }
