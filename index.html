@@ -20,51 +20,46 @@
         visualize the data.
       </p>
 
-      <!-- TODO: add work for county type (urban, rural, etc.) -->
-      <label for="attribute1">Attribute 1:</label>
-      <select name="attribute1" id="attribute1">
-        <option value="poverty_perc">Poverty Percentage</option>
-        <option value="median_household_income">Median Household Income</option>
-        <option value="education_less_than_high_school_percent">Education Less Than High School Percent</option>
-        <option value="air_quality">Air Quality</option>
-        <option value="park_access">Park Access</option>
-        <option value="percent_inactive">Percent Inactive</option>
-        <option value="percent_smoking">Percent Smoking</option>
-        <option value="elderly_percentage">Elderly Percentage</option>
-        <option value="number_of_hospitals">Number of Hospitals</option>
-        <option value="number_of_primary_care_physicians">Number of Primary Care Physicians</option>
-        <option value="percent_no_heath_insurance">Percent with No Health Insurance</option>
-        <option value="percent_high_blood_pressure">Percent with High Blood Pressure</option>
-        <option value="percent_coronary_heart_disease">Percent with Coronary Heart Disease</option>
-        <option value="percent_stroke">Percent Stroke</option>
-        <option value="percent_high_cholesterol">Percent High Cholesterol</option>
-      </select>
+      <p>The following data is available:</p>
+      <ul>
+        <li>
+          Economics (orange): poverty percentage, median household income,
+          percent of the population that completed high school.
+        </li>
+        <li>Environment (green): air quality and park access.</li>
+        <li>Behavioral factors (purple): smoking and inactivity.</li>
+        <li>
+          Demographics (pink): elderly and county type (rural/urban/suburban/small
+          city).
+        </li>
+        <li>
+          Health care (blue): hospitals, primary care physicians, and no health
+          insurance.
+        </li>
+        <li>
+          Health (red): high blood pressure, coronary heart disease, stroke, and
+          high cholesterol.
+        </li>
+      </ul>
 
-      <label for="attribute2">Attribute 2:</label>
-      <select name="attribute2" id="attribute2">
-        <option value="poverty_perc">Poverty Percentage</option>
-        <option value="median_household_income">Median Household Income</option>
-        <option value="education_less_than_high_school_percent">Education Less Than High School Percent</option>
-        <option value="air_quality">Air Quality</option>
-        <option value="park_access">Park Access</option>
-        <option value="percent_inactive">Percent Inactive</option>
-        <option value="percent_smoking">Percent Smoking</option>
-        <option value="elderly_percentage">Elderly Percentage</option>
-        <option value="number_of_hospitals">Number of Hospitals</option>
-        <option value="number_of_primary_care_physicians">Number of Primary Care Physicians</option>
-        <option value="percent_no_heath_insurance">Percent with No Health Insurance</option>
-        <option value="percent_high_blood_pressure">Percent with High Blood Pressure</option>
-        <option value="percent_coronary_heart_disease">Percent with Coronary Heart Disease</option>
-        <option value="percent_stroke">Percent Stroke</option>
-        <option value="percent_high_cholesterol">Percent High Cholesterol</option>
-      </select>
+      <label for="attribute1Select">Attribute 1:</label>
+      <select name="attribute1Select" id="attribute1Select"></select>
+
+      <label for="attribute2Select">Attribute 2:</label>
+      <select name="attribute2Select" id="attribute2Select"></select>
 
       <!-- Divs for the charts/graphs -->
-      <div id="histogram1"></div>
-      <div id="histogram2"></div>
-      <div id="scatterplot"></div>
-      <div id="chloropleth1"></div>
-      <div id="chloropleth2"></div>
+      <div class="flex-container">
+        <div id="histogram1"></div>
+        <div id="barchart1"></div>
+        <div id="histogram2"></div>
+        <div id="barchart2"></div>
+        <div id="scatterplot"></div>
+      </div>
+      <div class="flex-container">
+        <div id="chloropleth1"></div>
+        <div id="chloropleth2"></div>
+      </div>
     </main>
 
     <!-- Include the D3 bundle -->
@@ -72,6 +67,7 @@
 
     <script src="js/main.js"></script>
     <script src="js/histogram.js"></script>
+    <script src="js/scatterplot.js"></script>
     <!-- TODO: include the js files to be created for the graphs/charts -->
   </body>
 </html>

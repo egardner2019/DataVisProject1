@@ -2,11 +2,11 @@ class Histogram {
   constructor(_config, _data, _attributeName) {
     this.config = {
       parentElement: _config.parentElement,
-      containerWidth: _config.containerWidth || 500,
-      containerHeight: _config.containerHeight || 500,
-      margin: { top: 10, bottom: 30, right: 10, left: 50 },
+      containerWidth: _config.containerWidth || 450,
+      containerHeight: _config.containerHeight || 450,
+      margin: { top: 20, bottom: 50, right: 30, left: 50 },
     };
-    this.data = _data.filter((d) => d[_attributeName] != -1);
+    this.data = _data;
     this.attributeName = _attributeName;
 
     this.initVis();
@@ -16,7 +16,7 @@ class Histogram {
     const vis = this;
 
     vis.svg = d3
-      .select("#histogram1")
+      .select(vis.config.parentElement)
       .append("svg")
       .attr(
         "width",
@@ -37,10 +37,22 @@ class Histogram {
       );
 
     vis.x = d3.scaleLinear().range([0, vis.config.containerWidth]);
-    vis.xAxis = vis.svg.append("g");
+    vis.xAxis = vis.svg
+      .append("g")
+      .attr("transform", `translate(0,${vis.config.containerHeight})`);
 
     vis.y = d3.scaleLinear().range([vis.config.containerHeight, 0]);
     vis.yAxis = vis.svg.append("g");
+
+    // Y axis label
+    vis.svg
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - vis.config.margin.left)
+      .attr("x", 0 - vis.config.containerHeight / 2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Number of Counties");
 
     this.updateVis();
   }
@@ -51,9 +63,7 @@ class Histogram {
     vis.data = vis.data.filter((d) => d[vis.attributeName] != -1);
 
     vis.x.domain([0, d3.max(vis.data, (d) => d[vis.attributeName])]);
-    vis.xAxis
-      .attr("transform", `translate(0,${vis.config.containerHeight})`)
-      .call(d3.axisBottom(vis.x));
+    vis.xAxis.call(d3.axisBottom(vis.x));
 
     const histogram = d3
       .histogram()
@@ -66,6 +76,23 @@ class Histogram {
     vis.y.domain([0, d3.max(bins, (d) => d.length)]);
     vis.yAxis.call(d3.axisLeft(vis.y));
 
+    // X axis label
+    vis.svg
+      .selectAll("text.xLabel")
+      .data([vis.attributeName])
+      .join("text")
+      .attr("class", "xLabel")
+      .attr(
+        "transform",
+        "translate(" +
+          vis.config.containerWidth / 2 +
+          " ," +
+          (vis.config.containerHeight + 35) +
+          ")"
+      )
+      .style("text-anchor", "middle")
+      .text(attributes[vis.attributeName].label);
+
     vis.svg
       .selectAll("rect")
       .data(bins)
@@ -74,6 +101,6 @@ class Histogram {
       .attr("transform", (d) => `translate(${vis.x(d.x0)}, ${vis.y(d.length)})`)
       .attr("width", (d) => vis.x(d.x1) - vis.x(d.x0))
       .attr("height", (d) => vis.config.containerHeight - vis.y(d.length))
-      .style("fill", "#69b3a2");
+      .style("fill", attributes[vis.attributeName].color);
   }
 }
