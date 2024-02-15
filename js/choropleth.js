@@ -135,7 +135,7 @@ class Choropleth {
   updateVis() {
     const vis = this;
 
-    vis.data.objects.counties.geometries =
+    const filteredData = 
       vis.data.objects.counties.geometries.filter(
         (d) => d.properties[vis.attributeName] != -1
       );
@@ -148,7 +148,7 @@ class Choropleth {
       .text(attributes[vis.attributeName].label);
 
     const attributeExtent = d3.extent(
-      vis.data.objects.counties.geometries,
+      filteredData,
       (d) => d.properties[vis.attributeName]
     );
 
