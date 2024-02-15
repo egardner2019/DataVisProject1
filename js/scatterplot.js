@@ -77,7 +77,7 @@ class Scatterplot {
           ")"
       )
       .style("text-anchor", "middle")
-      .text(attributes[vis.attribute2Name]);
+      .text(attributes[vis.attribute2Name].label);
 
     // Y axis label
     vis.svg
@@ -90,7 +90,7 @@ class Scatterplot {
       .attr("x", 0 - vis.config.containerHeight / 2)
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .text(attributes[vis.attribute1Name]);
+      .text(attributes[vis.attribute1Name].label);
 
     vis.svg
       .selectAll("circle.point")
