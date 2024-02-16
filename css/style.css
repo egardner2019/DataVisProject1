@@ -1,13 +1,18 @@
 body {
   font-family: sans-serif;
   font-size: 13px;
-  padding: 30px;
+  padding: 20px;
 }
 
-.flex-container {
+.flex-container-vis {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-end;
+}
+
+.attribute-select {
+  text-align: center;
 }
 
 .background {
@@ -15,47 +20,28 @@ body {
   pointer-events: all;
 }
 
-#states {
-fill: #aaa;
-}
-
-#states .active {
-display:none;
-}
-
 #state-borders {
-fill: none;
-stroke: #fff;
-stroke-width: 1.5px;
-stroke-linejoin: round;
-stroke-linecap: round;
-pointer-events: none;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 1.5px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
 }
 
-.county-boundary {
-fill: gray;
-stroke: #fff;
-stroke-width: .5px;
-}
-
-.county-boundary:hover, .state:hover {
-fill: orange;
-}
-
-#tooltip {
-position: absolute;
-display: none;
-background: #fff;
-box-shadow: 3px 3px 3px 0px rgb(92 92 92 / 0.5);
-border: 1px solid #ddd;
-font-size: 12px;
-font-weight: 500;
-padding: 8px;
-min-width: 160px;
-color: #333;
+.tooltip {
+  position: absolute;
+  background: #fff;
+  box-shadow: 3px 3px 3px 0px rgb(92 92 92 / 0.5);
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px;
+  color: #333;
 }
 .tooltip-title {
-color: #000;
-font-size: 14px;
-font-weight: 600;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
 }

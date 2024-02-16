@@ -1,10 +1,11 @@
+// Adapted from the UBC InfoVis course materials/code
 class Choropleth {
   constructor(_config, _data, _attributeName, _num) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 800,
-      containerHeight: _config.containerHeight || 500,
-      margin: _config.margin || { top: 10, right: 10, bottom: 10, left: 10 },
+      containerHeight: _config.containerHeight || 475,
+      margin: _config.margin || { top: 5, right: 5, bottom: 10, left: 5 },
       color: attributes[_attributeName].color,
       tooltipPadding: 10,
       legendBottom: 20,
@@ -12,10 +13,9 @@ class Choropleth {
       legendRectHeight: 12,
       legendRectWidth: 300,
     };
-    this.data = _data;
+    this.data = this.us = _data;
     this.number = _num;
     this.attributeName = _attributeName;
-    this.us = _data;
     this.active = d3.select(null);
 
     this.initVis();
@@ -38,16 +38,16 @@ class Choropleth {
     vis.svg = d3
       .select(vis.config.parentElement)
       .append("svg")
-      .attr("class", "center-container")
       .attr("width", vis.config.containerWidth)
       .attr("height", vis.config.containerHeight);
 
     // vis.svg
     //   .append("rect")
-    //   .attr("class", "background center-container")
+    //   .attr("class", "background")
     //   .attr("height", vis.config.containerWidth) //height + margin.top + margin.bottom)
     //   .attr("width", vis.config.containerHeight) //width + margin.left + margin.right)
     //   .on("click", vis.clicked);
+
     vis.chart = vis.svg
       .append("g")
       .attr(
@@ -64,7 +64,6 @@ class Choropleth {
 
     vis.g = vis.svg
       .append("g")
-      .attr("class", "center-container center-items us-state")
       .attr(
         "transform",
         "translate(" +
@@ -82,31 +81,19 @@ class Choropleth {
         vis.height + vis.config.margin.top + vis.config.margin.bottom
       );
 
-    // vis.counties
-    //   .on("mousemove", (d, event) => {
-    //     console.log(d);
-    //     console.log(event);
-    //     const popDensity = d.properties.pop
-    //       ? `<strong>${d.properties.pop}</strong> pop. density per km<sup>2</sup>`
-    //       : "No data available";
-    //     d3
-    //       .select("#tooltip")
-    //       .style("display", "block")
-    //       .style("left", event.pageX + vis.config.tooltipPadding + "px")
-    //       .style("top", event.pageY + vis.config.tooltipPadding + "px").html(`
-    //                       <div class="tooltip-title">${d.properties.name}</div>
-    //                       <div>${popDensity}</div>
-    //                     `);
-    //   })
-    //   .on("mouseleave", () => {
-    //     d3.select("#tooltip").style("display", "none");
-    //   });
-
-    vis.g
+    vis.svg
       .append("path")
       .datum(topojson.mesh(vis.us, vis.us.objects.states, (a, b) => a !== b))
       .attr("id", "state-borders")
-      .attr("d", vis.path);
+      .attr("d", vis.path)
+      .attr(
+        "transform",
+        "translate(" +
+          vis.config.margin.left +
+          "," +
+          vis.config.margin.top +
+          ")"
+      );
 
     vis.linearGradient = vis.svg
       .append("defs")
@@ -116,7 +103,6 @@ class Choropleth {
     // Append legend
     vis.legend = vis.chart
       .append("g")
-      .attr("class", "legend")
       .attr(
         "transform",
         `translate(${vis.config.legendLeft},${
@@ -168,7 +154,6 @@ class Choropleth {
       .data(topojson.feature(vis.us, vis.us.objects.counties).features)
       .join("path")
       .attr("d", vis.path)
-      // .attr("class", "county-boundary")
       .attr("fill", (d) => {
         if (
           d.properties[vis.attributeName] &&
@@ -178,6 +163,32 @@ class Choropleth {
         } else {
           return "url(#lightstripe)";
         }
+      });
+
+    vis.counties
+      .on("mouseover", function (event, d) {
+        const attrVal = d.properties[vis.attributeName];
+        d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
+        tooltip.style("visibility", "visible").html(`
+          <div class="tooltip-title">${d.properties.display_name}</div>
+          ${
+            attrVal == -1
+              ? "<div><i>No data available</i></div>"
+              : `<div><b>${
+                  attributes[vis.attributeName].label
+                }</b>: ${attrVal}</div>`
+          }
+          
+        `);
+      })
+      .on("mousemove", function (event) {
+        tooltip
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px");
+      })
+      .on("mouseout", function () {
+        d3.select(this).attr("stroke-width", "0");
+        tooltip.style("visibility", "hidden");
       });
 
     vis.legendStops = [

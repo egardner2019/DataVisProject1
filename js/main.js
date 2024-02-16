@@ -65,6 +65,13 @@ const attributes = {
   },
 };
 
+const tooltip = d3
+      .select("body")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("position", "absolute")
+      .style("visibility", "hidden");
+
 Promise.all([
   d3.json("data/counties-10m.json"),
   d3.csv("data/national_health_data.csv"),
@@ -98,6 +105,10 @@ Promise.all([
     countiesData.forEach((d) => {
       // Convert to numbers
       d.cnty_fips = +d.cnty_fips;
+      d.display_name = d.display_name
+        .replaceAll('"', "")
+        .replaceAll("(", "")
+        .replaceAll(")", "");
       d.poverty_perc = +d.poverty_perc;
       d.median_household_income = +d.median_household_income;
       d.education_less_than_high_school_percent =
@@ -170,7 +181,7 @@ Promise.all([
     );
     const choropleth1 = new Choropleth(
       {
-        parentElement: "#choropleth1"
+        parentElement: "#choropleth1",
       },
       geoData,
       attribute1Select.value,
@@ -178,7 +189,7 @@ Promise.all([
     );
     const choropleth2 = new Choropleth(
       {
-        parentElement: "#choropleth2"
+        parentElement: "#choropleth2",
       },
       geoData,
       attribute2Select.value,

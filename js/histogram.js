@@ -1,9 +1,10 @@
+// Adapted from https://d3-graph-gallery.com/graph/histogram_binSize.html
 class Histogram {
   constructor(_config, _data, _attributeName) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
-      containerHeight: _config.containerHeight || 450,
+      containerHeight: _config.containerHeight || 200,
       margin: { top: 20, bottom: 50, right: 30, left: 50 },
     };
     this.data = _data;
@@ -59,7 +60,7 @@ class Histogram {
 
   updateVis() {
     const vis = this;
-    
+
     vis.data = vis.data.filter((d) => d[vis.attributeName] != -1);
 
     vis.x.domain([0, d3.max(vis.data, (d) => d[vis.attributeName])]);
@@ -102,5 +103,23 @@ class Histogram {
       .attr("width", (d) => vis.x(d.x1) - vis.x(d.x0))
       .attr("height", (d) => vis.config.containerHeight - vis.y(d.length))
       .style("fill", attributes[vis.attributeName].color);
+
+    // The following code was modified from https://observablehq.com/@giorgiofighera/histogram-with-tooltips-and-bars-highlighted-on-mouse-over
+    d3.selectAll("rect")
+      .on("mouseover", function (event, d) {
+        d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
+        tooltip.style("visibility", "visible").html(`
+          <div>${d.length} Counties Between ${d.x0}-${d.x1}</div>
+        `);
+      })
+      .on("mousemove", function (event) {
+        tooltip
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px");
+      })
+      .on("mouseout", function () {
+        d3.select(this).attr("stroke-width", "0");
+        tooltip.style("visibility", "hidden");
+      });
   }
 }

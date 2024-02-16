@@ -1,11 +1,12 @@
+// Adapted from https://d3-graph-gallery.com/graph/scatter_buttonXlim.html
 class Scatterplot {
   constructor(_config, _data, _attribute1Name, _attribute2Name) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
-      containerHeight: _config.containerHeight || 450,
+      containerHeight: _config.containerHeight || 200,
       color: _config.color || "#474242",
-      margin: { top: 20, bottom: 50, right: 30, left: 50 },
+      margin: { top: 20, bottom: 50, right: 50, left: 65 },
     };
     this.data = _data;
     this.attribute1Name = _attribute1Name;
@@ -86,7 +87,12 @@ class Scatterplot {
       .join("text")
       .attr("class", "yLabel")
       .attr("transform", "rotate(-90)")
-      .attr("y", 0 - vis.config.margin.left)
+      .attr(
+        "y",
+        0 -
+          vis.config.margin.left +
+          (vis.attribute1Name === "median_household_income" ? 0 : 15)
+      )
       .attr("x", 0 - vis.config.containerHeight / 2)
       .attr("dy", "1em")
       .style("text-anchor", "middle")
@@ -101,5 +107,29 @@ class Scatterplot {
       .attr("cy", (d) => vis.y(d[vis.attribute1Name]))
       .attr("r", 2)
       .style("fill", vis.config.color);
+
+    // The following code was modified from https://observablehq.com/@giorgiofighera/histogram-with-tooltips-and-bars-highlighted-on-mouse-over
+    d3.selectAll("circle")
+      .on("mouseover", function (event, d) {
+        d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
+        tooltip.style("visibility", "visible").html(`
+          <div class="tooltip-title">${d.display_name}</div>
+          <div><b>${
+            attributes[vis.attribute1Name].label
+          }</b>: ${d[vis.attribute1Name]}</div>
+          <div><b>${
+            attributes[vis.attribute2Name].label
+          }</b>: ${d[vis.attribute2Name]}</div>
+        `);
+      })
+      .on("mousemove", function (event) {
+        tooltip
+          .style("top", event.pageY - 10 + "px")
+          .style("left", event.pageX + 10 + "px");
+      })
+      .on("mouseout", function () {
+        d3.select(this).attr("stroke-width", "0");
+        tooltip.style("visibility", "hidden");
+      });
   }
 }
