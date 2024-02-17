@@ -1,6 +1,12 @@
 // Adapted from https://d3-graph-gallery.com/graph/scatter_buttonXlim.html
 class Scatterplot {
-  constructor(_config, _data, _attribute1Name, _attribute2Name) {
+  constructor(
+    _config,
+    _data,
+    _attribute1Name,
+    _attribute2Name,
+    _filterBySelection
+  ) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
@@ -11,6 +17,7 @@ class Scatterplot {
     this.data = _data;
     this.attribute1Name = _attribute1Name;
     this.attribute2Name = _attribute2Name;
+    this.filterBySelection = _filterBySelection;
 
     this.initVis();
   }
@@ -46,6 +53,18 @@ class Scatterplot {
 
     vis.y = d3.scaleLinear().range([vis.config.containerHeight, 0]);
     vis.yAxis = vis.svg.append("g");
+
+    vis.brushG = vis.svg.append("g").attr("class", "brush");
+
+    vis.brush = d3
+      .brush()
+      .extent([
+        [0, 0],
+        [vis.config.containerWidth, vis.config.containerHeight],
+      ])
+      // Reset the filtered counties
+      .on("start", () => (filteredCounties = []))
+      .on("end", (result) => vis.filterBySelection(result, vis));
 
     this.updateVis();
   }
@@ -106,7 +125,18 @@ class Scatterplot {
       .attr("cx", (d) => vis.x(d[vis.attribute2Name]))
       .attr("cy", (d) => vis.y(d[vis.attribute1Name]))
       .attr("r", 2)
-      .style("fill", vis.config.color);
+      .style("fill", vis.config.color)
+      .style("fill-opacity", (d) => {
+        if (filteredCounties.length !== 0) {
+          if (
+            filteredCounties.find(
+              (filteredCounty) => filteredCounty.cnty_fips == d.cnty_fips
+            )
+          )
+            return 1;
+          else return 0.5;
+        } else return 1;
+      });
 
     // The following code was modified from https://observablehq.com/@giorgiofighera/histogram-with-tooltips-and-bars-highlighted-on-mouse-over
     d3.selectAll("circle")
@@ -131,5 +161,7 @@ class Scatterplot {
         d3.select(this).attr("stroke-width", "0");
         tooltip.style("visibility", "hidden");
       });
+
+    vis.brushG.call(vis.brush);
   }
 }

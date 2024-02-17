@@ -66,11 +66,14 @@ const attributes = {
 };
 
 const tooltip = d3
-      .select("body")
-      .append("div")
-      .attr("class", "tooltip")
-      .style("position", "absolute")
-      .style("visibility", "hidden");
+  .select("body")
+  .append("div")
+  .attr("class", "tooltip")
+  .style("position", "absolute")
+  .style("visibility", "hidden");
+
+let filteredCounties, countiesData;
+let histogram1, histogram2, scatterplot, choropleth1, choropleth2;
 
 Promise.all([
   d3.json("data/counties-10m.json"),
@@ -78,7 +81,7 @@ Promise.all([
 ])
   .then((data) => {
     const geoData = data[0];
-    const countiesData = data[1];
+    countiesData = data[1];
 
     const attributesAvailable = [
       "cnty_fips",
@@ -156,30 +159,70 @@ Promise.all([
       if (index == 1) attribute2Select.value = attribute[0];
     });
 
+    filteredCounties = [];
+
+    const filterBySelection = (result, selectedVis) => {
+      const extent = result.selection;
+
+      if (!extent) {
+        // Reset the counties filter (include them all)
+        filteredCounties = [];
+      } else {
+        // Filter the counties
+        const xRange = [
+          selectedVis.x.invert(extent[0][0]),
+          selectedVis.x.invert(extent[1][0]),
+        ];
+        const yRange = [
+          selectedVis.y.invert(extent[1][1]),
+          selectedVis.y.invert(extent[0][1]),
+        ];
+
+        filteredCounties = countiesData.filter((d) => {
+          const attr1Val = d[selectedVis.attribute1Name];
+          const attr2Val = d[selectedVis.attribute2Name];
+
+          return (
+            attr1Val >= yRange[0] &&
+            attr1Val <= yRange[1] &&
+            attr2Val >= xRange[0] &&
+            attr2Val <= xRange[1]
+          );
+        });
+      }
+
+      // histogram1.updateVis();
+      // histogram2.updateVis();
+      scatterplot.updateVis();
+      // choropleth1.updateVis();
+      // choropleth2.updateVis();
+    };
+
     // Create the charts/graphs
-    const histogram1 = new Histogram(
+    histogram1 = new Histogram(
       {
         parentElement: "#histogram1",
       },
       countiesData,
       attribute1Select.value
     );
-    const histogram2 = new Histogram(
+    histogram2 = new Histogram(
       {
         parentElement: "#histogram2",
       },
       countiesData,
       attribute2Select.value
     );
-    const scatterplot = new Scatterplot(
+    scatterplot = new Scatterplot(
       {
         parentElement: "#scatterplot",
       },
       countiesData,
       attribute1Select.value,
-      attribute2Select.value
+      attribute2Select.value,
+      filterBySelection
     );
-    const choropleth1 = new Choropleth(
+    choropleth1 = new Choropleth(
       {
         parentElement: "#choropleth1",
       },
@@ -187,7 +230,7 @@ Promise.all([
       attribute1Select.value,
       1
     );
-    const choropleth2 = new Choropleth(
+    choropleth2 = new Choropleth(
       {
         parentElement: "#choropleth2",
       },
