@@ -191,8 +191,8 @@ Promise.all([
         });
       }
 
-      // histogram1.updateVis();
-      // histogram2.updateVis();
+      histogram1.updateVis();
+      histogram2.updateVis();
       scatterplot.updateVis();
       // choropleth1.updateVis();
       // choropleth2.updateVis();
@@ -203,21 +203,18 @@ Promise.all([
       {
         parentElement: "#histogram1",
       },
-      countiesData,
       attribute1Select.value
     );
     histogram2 = new Histogram(
       {
         parentElement: "#histogram2",
       },
-      countiesData,
       attribute2Select.value
     );
     scatterplot = new Scatterplot(
       {
         parentElement: "#scatterplot",
       },
-      countiesData,
       attribute1Select.value,
       attribute2Select.value,
       filterBySelection

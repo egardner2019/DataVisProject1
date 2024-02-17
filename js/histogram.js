@@ -1,13 +1,12 @@
 // Adapted from https://d3-graph-gallery.com/graph/histogram_binSize.html
 class Histogram {
-  constructor(_config, _data, _attributeName) {
+  constructor(_config, _attributeName) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
       containerHeight: _config.containerHeight || 200,
       margin: { top: 20, bottom: 50, right: 30, left: 50 },
     };
-    this.data = _data;
     this.attributeName = _attributeName;
 
     this.initVis();
@@ -61,7 +60,15 @@ class Histogram {
   updateVis() {
     const vis = this;
 
-    vis.data = vis.data.filter((d) => d[vis.attributeName] != -1);
+    vis.data = countiesData.filter(
+      (d) =>
+        d[vis.attributeName] != -1 &&
+        (filteredCounties.length == 0 ||
+          (filteredCounties.length != 0 &&
+            filteredCounties.find(
+              (filteredCounty) => filteredCounty.cnty_fips == d.cnty_fips
+            )))
+    );
 
     vis.x.domain([0, d3.max(vis.data, (d) => d[vis.attributeName])]);
     vis.xAxis.call(d3.axisBottom(vis.x));
@@ -95,9 +102,10 @@ class Histogram {
       .text(attributes[vis.attributeName].label);
 
     vis.svg
-      .selectAll("rect")
+      .selectAll("rect.bar")
       .data(bins)
       .join("rect")
+      .attr("class", "bar")
       .attr("x", 1)
       .attr("transform", (d) => `translate(${vis.x(d.x0)}, ${vis.y(d.length)})`)
       .attr("width", (d) => vis.x(d.x1) - vis.x(d.x0))
@@ -105,7 +113,7 @@ class Histogram {
       .style("fill", attributes[vis.attributeName].color);
 
     // The following code was modified from https://observablehq.com/@giorgiofighera/histogram-with-tooltips-and-bars-highlighted-on-mouse-over
-    d3.selectAll("rect")
+    d3.selectAll("rect.bar")
       .on("mouseover", function (event, d) {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`

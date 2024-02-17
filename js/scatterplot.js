@@ -1,12 +1,6 @@
 // Adapted from https://d3-graph-gallery.com/graph/scatter_buttonXlim.html
 class Scatterplot {
-  constructor(
-    _config,
-    _data,
-    _attribute1Name,
-    _attribute2Name,
-    _filterBySelection
-  ) {
+  constructor(_config, _attribute1Name, _attribute2Name, _filterBySelection) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
@@ -14,7 +8,6 @@ class Scatterplot {
       color: _config.color || "#474242",
       margin: { top: 20, bottom: 50, right: 50, left: 65 },
     };
-    this.data = _data;
     this.attribute1Name = _attribute1Name;
     this.attribute2Name = _attribute2Name;
     this.filterBySelection = _filterBySelection;
@@ -72,7 +65,7 @@ class Scatterplot {
   updateVis() {
     const vis = this;
 
-    vis.data = vis.data.filter(
+    vis.data = countiesData.filter(
       (d) => d[vis.attribute1Name] != -1 && d[vis.attribute2Name] != -1
     );
 
