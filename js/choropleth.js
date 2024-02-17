@@ -1,6 +1,6 @@
 // Adapted from the UBC InfoVis course materials/code
 class Choropleth {
-  constructor(_config, _data, _attributeName, _num) {
+  constructor(_config, _attributeName, _num) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 800,
@@ -13,7 +13,7 @@ class Choropleth {
       legendRectHeight: 12,
       legendRectWidth: 300,
     };
-    this.data = this.us = _data;
+    this.us = geoData;
     this.number = _num;
     this.attributeName = _attributeName;
     this.active = d3.select(null);
@@ -123,7 +123,7 @@ class Choropleth {
 
     vis.config.color = attributes[vis.attributeName].color;
 
-    const filteredData = vis.data.objects.counties.geometries.filter(
+    const filteredData = geoData.objects.counties.geometries.filter(
       (d) => d.properties[vis.attributeName] != -1
     );
 
@@ -155,14 +155,39 @@ class Choropleth {
       .join("path")
       .attr("d", vis.path)
       .attr("fill", (d) => {
-        if (
-          d.properties[vis.attributeName] &&
-          d.properties[vis.attributeName] != -1
-        ) {
-          return vis.colorScale(d.properties[vis.attributeName]);
+        // TODO: simplify this to remove duplication
+        if (filteredCounties.length !== 0) {
+          if (
+            filteredCounties.find(
+              (filteredCounty) =>
+                filteredCounty.cnty_fips == d.properties.cnty_fips
+            )
+          ) {
+            if (
+              d.properties[vis.attributeName] &&
+              d.properties[vis.attributeName] != -1
+            ) {
+              return vis.colorScale(d.properties[vis.attributeName]);
+            } else {
+              return "url(#lightstripe)";
+            }
+          } else {
+            return "dimgray";
+          }
         } else {
-          return "url(#lightstripe)";
+          if (
+            d.properties[vis.attributeName] &&
+            d.properties[vis.attributeName] != -1
+          ) {
+            return vis.colorScale(d.properties[vis.attributeName]);
+          } else {
+            return "url(#lightstripe)";
+          }
         }
+      })
+      .style("fill-opacity", (d) => {
+        console.log("attempted fill opacity");
+        console.log(d);
       });
 
     vis.counties

@@ -72,7 +72,7 @@ const tooltip = d3
   .style("position", "absolute")
   .style("visibility", "hidden");
 
-let filteredCounties, countiesData;
+let filteredCounties, geoData, countiesData;
 let histogram1, histogram2, scatterplot, choropleth1, choropleth2;
 
 Promise.all([
@@ -80,7 +80,7 @@ Promise.all([
   d3.csv("data/national_health_data.csv"),
 ])
   .then((data) => {
-    const geoData = data[0];
+    geoData = data[0];
     countiesData = data[1];
 
     const attributesAvailable = [
@@ -194,8 +194,8 @@ Promise.all([
       histogram1.updateVis();
       histogram2.updateVis();
       scatterplot.updateVis();
-      // choropleth1.updateVis();
-      // choropleth2.updateVis();
+      choropleth1.updateVis();
+      choropleth2.updateVis();
     };
 
     // Create the charts/graphs
@@ -223,7 +223,6 @@ Promise.all([
       {
         parentElement: "#choropleth1",
       },
-      geoData,
       attribute1Select.value,
       1
     );
@@ -231,7 +230,6 @@ Promise.all([
       {
         parentElement: "#choropleth2",
       },
-      geoData,
       attribute2Select.value,
       2
     );
