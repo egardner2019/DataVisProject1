@@ -1,6 +1,6 @@
 // Adapted from https://d3-graph-gallery.com/graph/histogram_binSize.html
 class Histogram {
-  constructor(_config, _attributeName) {
+  constructor(_config, _attributeName, _num) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
@@ -8,6 +8,7 @@ class Histogram {
       margin: { top: 20, bottom: 50, right: 30, left: 50 },
     };
     this.attributeName = _attributeName;
+    this.number = _num;
 
     this.initVis();
   }
@@ -114,10 +115,10 @@ class Histogram {
       .text(attributes[vis.attributeName].label);
 
     vis.svg
-      .selectAll("rect.bar")
+      .selectAll(`rect.bar-${this.number}`)
       .data(bins)
       .join("rect")
-      .attr("class", "bar")
+      .attr("class", `bar-${this.number}`)
       .attr("x", 1)
       .attr("transform", (d) => `translate(${vis.x(d.x0)}, ${vis.y(d.length)})`)
       .attr("width", (d) => vis.x(d.x1) - vis.x(d.x0))
@@ -125,7 +126,7 @@ class Histogram {
       .style("fill", attributes[vis.attributeName].color);
 
     // The following code was modified from https://observablehq.com/@giorgiofighera/histogram-with-tooltips-and-bars-highlighted-on-mouse-over
-    d3.selectAll("rect.bar")
+    d3.selectAll(`rect.bar-${this.number}`)
       .on("mouseover", function (event, d) {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
@@ -142,6 +143,24 @@ class Histogram {
       .on("mouseout", function () {
         d3.select(this).attr("stroke-width", "0");
         tooltip.style("visibility", "hidden");
+      })
+      .on("mousedown", function (event) {
+        vis.svg
+          .select(".overlay")
+          .node()
+          .dispatchEvent(
+            new MouseEvent("mousedown", {
+              bubbles: true,
+              clientX: event.clientX,
+              clientY: event.clientY,
+              pageX: event.pageX,
+              pageY: event.pageY,
+              view: window,
+              layerX: event.layerX,
+              layerY: event.layerY,
+              cancelable: true,
+            })
+          );
       });
 
     vis.brushG.call(vis.brush);

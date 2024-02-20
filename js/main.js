@@ -186,13 +186,15 @@ Promise.all([
       {
         parentElement: "#histogram1",
       },
-      attribute1Select.value
+      attribute1Select.value,
+      1
     );
     histogram2 = new Histogram(
       {
         parentElement: "#histogram2",
       },
-      attribute2Select.value
+      attribute2Select.value,
+      2
     );
     scatterplot = new Scatterplot(
       {

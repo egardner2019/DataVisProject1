@@ -152,6 +152,24 @@ class Scatterplot {
       .on("mouseout", function () {
         d3.select(this).attr("stroke-width", "0");
         tooltip.style("visibility", "hidden");
+      })
+      .on("mousedown", function (event) {
+        vis.svg
+          .select(".overlay")
+          .node()
+          .dispatchEvent(
+            new MouseEvent("mousedown", {
+              bubbles: true,
+              clientX: event.clientX,
+              clientY: event.clientY,
+              pageX: event.pageX,
+              pageY: event.pageY,
+              view: window,
+              layerX: event.layerX,
+              layerY: event.layerY,
+              cancelable: true,
+            })
+          );
       });
 
     vis.brushG.call(vis.brush);

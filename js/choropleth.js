@@ -41,13 +41,6 @@ class Choropleth {
       .attr("width", vis.config.containerWidth)
       .attr("height", vis.config.containerHeight);
 
-    // vis.svg
-    //   .append("rect")
-    //   .attr("class", "background")
-    //   .attr("height", vis.config.containerWidth) //height + margin.top + margin.bottom)
-    //   .attr("width", vis.config.containerHeight) //width + margin.left + margin.right)
-    //   .on("click", vis.clicked);
-
     vis.chart = vis.svg
       .append("g")
       .attr(
@@ -221,6 +214,24 @@ class Choropleth {
       .on("mouseout", function () {
         d3.select(this).attr("stroke-width", "0");
         tooltip.style("visibility", "hidden");
+      })
+      .on("mousedown", function (event) {
+        vis.svg
+          .select(".overlay")
+          .node()
+          .dispatchEvent(
+            new MouseEvent("mousedown", {
+              bubbles: true,
+              clientX: event.clientX,
+              clientY: event.clientY,
+              pageX: event.pageX,
+              pageY: event.pageY,
+              layerX: event.layerX,
+              layerY: event.layerY,
+              cancelable: true,
+              view: window,
+            })
+          );
       });
 
     vis.legendStops = [
