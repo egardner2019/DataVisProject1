@@ -115,6 +115,18 @@ class Choropleth {
       .attr("width", vis.config.legendRectWidth)
       .attr("height", vis.config.legendRectHeight);
 
+    vis.brushG = vis.g.append("g").attr("class", "brush");
+
+    vis.brush = d3
+      .brush()
+      .extent([
+        [0, 0],
+        [vis.config.containerWidth, vis.config.containerHeight],
+      ])
+      // Reset the filtered counties
+      .on("start", () => (filteredCounties = []))
+      .on("end", (result) => vis.filterBySelection(result, vis));
+
     this.updateVis();
   }
 
@@ -159,8 +171,7 @@ class Choropleth {
         if (filteredCounties.length !== 0) {
           if (
             filteredCounties.find(
-              (filteredCounty) =>
-                filteredCounty.cnty_fips == d.properties.cnty_fips
+              (filteredCounty) => filteredCounty == d.properties.cnty_fips
             )
           ) {
             if (
@@ -172,7 +183,7 @@ class Choropleth {
               return "url(#lightstripe)";
             }
           } else {
-            return "dimgray";
+            return "gray";
           }
         } else {
           if (
@@ -184,10 +195,6 @@ class Choropleth {
             return "url(#lightstripe)";
           }
         }
-      })
-      .style("fill-opacity", (d) => {
-        console.log("attempted fill opacity");
-        console.log(d);
       });
 
     vis.counties
@@ -252,5 +259,40 @@ class Choropleth {
       .attr("stop-color", (d) => d.color);
 
     vis.legendRect.attr("fill", `url(#legend-gradient-${vis.number})`);
+
+    vis.brushG.call(vis.brush);
+  }
+
+  filterBySelection(result, vis) {
+    if (!result.sourceEvent) return; // Only transition after input
+
+    const extent = result.selection;
+
+    if (!extent) {
+      // Reset the counties filter (include them all)
+      filteredCounties = [];
+    } else {
+      filteredCounties = topojson
+        .feature(vis.us, vis.us.objects.counties)
+        .features.filter((d) => {
+          // Use the path generator to create a bounding box for each county
+          const boundingBox = vis.path.bounds(d);
+          const xMin = boundingBox[0][0];
+          const yMin = boundingBox[0][1];
+          const xMax = boundingBox[1][0];
+          const yMax = boundingBox[1][1];
+
+          // Check if the bounding box intersects with the selection box
+          return (
+            xMax >= extent[0][0] &&
+            xMin <= extent[1][0] &&
+            yMax >= extent[0][1] &&
+            yMin <= extent[1][1]
+          );
+        })
+        .map((d) => d.properties.cnty_fips);
+    }
+
+    updateVisualizations(vis);
   }
 }

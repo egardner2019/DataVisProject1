@@ -74,6 +74,7 @@ const tooltip = d3
 
 let filteredCounties, geoData, countiesData;
 let histogram1, histogram2, scatterplot, choropleth1, choropleth2;
+let updateVisualizations;
 
 Promise.all([
   d3.json("data/counties-10m.json"),
@@ -161,41 +162,23 @@ Promise.all([
 
     filteredCounties = [];
 
-    const filterBySelection = (result, selectedVis) => {
-      const extent = result.selection;
-
-      if (!extent) {
-        // Reset the counties filter (include them all)
-        filteredCounties = [];
-      } else {
-        // Filter the counties
-        const xRange = [
-          selectedVis.x.invert(extent[0][0]),
-          selectedVis.x.invert(extent[1][0]),
-        ];
-        const yRange = [
-          selectedVis.y.invert(extent[1][1]),
-          selectedVis.y.invert(extent[0][1]),
-        ];
-
-        filteredCounties = countiesData.filter((d) => {
-          const attr1Val = d[selectedVis.attribute1Name];
-          const attr2Val = d[selectedVis.attribute2Name];
-
-          return (
-            attr1Val >= yRange[0] &&
-            attr1Val <= yRange[1] &&
-            attr2Val >= xRange[0] &&
-            attr2Val <= xRange[1]
-          );
-        });
-      }
-
+    updateVisualizations = (currentVis) => {
+      // Update all of the visualizations' content
       histogram1.updateVis();
       histogram2.updateVis();
       scatterplot.updateVis();
       choropleth1.updateVis();
       choropleth2.updateVis();
+
+      // Modify the brushes of the visualizations
+      histogram1.brushG.call(histogram1.brush.move, null);
+      histogram2.brushG.call(histogram2.brush.move, null);
+      if (currentVis != scatterplot)
+        scatterplot.brushG.call(scatterplot.brush.move, null);
+      if (currentVis != choropleth1)
+        choropleth1.brushG.call(choropleth1.brush.move, null);
+      if (currentVis != choropleth2)
+        choropleth2.brushG.call(choropleth2.brush.move, null);
     };
 
     // Create the charts/graphs
@@ -216,8 +199,7 @@ Promise.all([
         parentElement: "#scatterplot",
       },
       attribute1Select.value,
-      attribute2Select.value,
-      filterBySelection
+      attribute2Select.value
     );
     choropleth1 = new Choropleth(
       {

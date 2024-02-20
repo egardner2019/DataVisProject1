@@ -1,6 +1,6 @@
 // Adapted from https://d3-graph-gallery.com/graph/scatter_buttonXlim.html
 class Scatterplot {
-  constructor(_config, _attribute1Name, _attribute2Name, _filterBySelection) {
+  constructor(_config, _attribute1Name, _attribute2Name) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
@@ -10,7 +10,6 @@ class Scatterplot {
     };
     this.attribute1Name = _attribute1Name;
     this.attribute2Name = _attribute2Name;
-    this.filterBySelection = _filterBySelection;
 
     this.initVis();
   }
@@ -123,11 +122,11 @@ class Scatterplot {
         if (filteredCounties.length !== 0) {
           if (
             filteredCounties.find(
-              (filteredCounty) => filteredCounty.cnty_fips == d.cnty_fips
+              (filteredCounty) => filteredCounty == d.cnty_fips
             )
           )
             return 1;
-          else return 0.5;
+          else return 0.1;
         } else return 1;
       });
 
@@ -156,5 +155,36 @@ class Scatterplot {
       });
 
     vis.brushG.call(vis.brush);
+  }
+
+  filterBySelection(result, vis) {
+    if (!result.sourceEvent) return; // Only transition after input
+
+    const extent = result.selection;
+
+    if (!extent) {
+      // Reset the counties filter (include them all)
+      filteredCounties = [];
+    } else {
+      // Filter the counties
+      const xRange = [vis.x.invert(extent[0][0]), vis.x.invert(extent[1][0])];
+      const yRange = [vis.y.invert(extent[1][1]), vis.y.invert(extent[0][1])];
+
+      filteredCounties = countiesData
+        .filter((d) => {
+          const attr1Val = d[vis.attribute1Name];
+          const attr2Val = d[vis.attribute2Name];
+
+          return (
+            attr1Val >= yRange[0] &&
+            attr1Val <= yRange[1] &&
+            attr2Val >= xRange[0] &&
+            attr2Val <= xRange[1]
+          );
+        })
+        .map((d) => d.cnty_fips);
+    }
+
+    updateVisualizations(vis);
   }
 }

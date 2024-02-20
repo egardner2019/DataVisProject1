@@ -54,6 +54,18 @@ class Histogram {
       .style("text-anchor", "middle")
       .text("Number of Counties");
 
+    vis.brushG = vis.svg.append("g").attr("class", "brush");
+
+    vis.brush = d3
+      .brushX()
+      .extent([
+        [0, 0],
+        [vis.config.containerWidth, vis.config.containerHeight],
+      ])
+      // Reset the filtered counties
+      .on("start", () => (filteredCounties = []))
+      .on("end", (result) => vis.filterBySelection(result, vis));
+
     this.updateVis();
   }
 
@@ -66,7 +78,7 @@ class Histogram {
         (filteredCounties.length == 0 ||
           (filteredCounties.length != 0 &&
             filteredCounties.find(
-              (filteredCounty) => filteredCounty.cnty_fips == d.cnty_fips
+              (filteredCounty) => filteredCounty == d.cnty_fips
             )))
     );
 
@@ -131,5 +143,33 @@ class Histogram {
         d3.select(this).attr("stroke-width", "0");
         tooltip.style("visibility", "hidden");
       });
+
+    vis.brushG.call(vis.brush);
+  }
+
+  filterBySelection(result, vis) {
+    if (!result.sourceEvent) return; // Only transition after input
+
+    const extent = result.selection;
+
+    if (!extent) {
+      // Reset the counties filter (include them all)
+      filteredCounties = [];
+    } else {
+      // Filter the counties
+      const range = [vis.x.invert(extent[0]), vis.x.invert(extent[1])];
+
+      filteredCounties = countiesData
+        .filter((d) => {
+          const attrVal = d[vis.attributeName];
+
+          return attrVal >= range[0] && attrVal <= range[1];
+        })
+        .map((d) => d.cnty_fips);
+    }
+
+    updateVisualizations(vis);
+
+    vis.brushG.call(vis.brush.move, null);
   }
 }
