@@ -223,28 +223,26 @@ Promise.all([
     attribute1Select.onchange = (event) => {
       // Update the histogram for the first attribute
       histogram1.attributeName = event.target.value;
-      histogram1.updateVis();
 
       // Update the scatterplot
       scatterplot.attribute1Name = event.target.value;
-      scatterplot.updateVis();
 
       // Update the first choropleth map
       choropleth1.attributeName = event.target.value;
-      choropleth1.updateVis();
+
+      updateVisualizations(null)
     };
     attribute2Select.onchange = (event) => {
       // Update the histogram for the second attribute
       histogram2.attributeName = event.target.value;
-      histogram2.updateVis();
 
       // Update the scatterplot
       scatterplot.attribute2Name = event.target.value;
-      scatterplot.updateVis();
 
       // Update the second choropleth map
       choropleth2.attributeName = event.target.value;
-      choropleth2.updateVis();
+
+      updateVisualizations(null)
     };
 
     // TODO: Create the instances of the charts/graphs

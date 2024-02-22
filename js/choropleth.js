@@ -120,6 +120,8 @@ class Choropleth {
       .on("start", () => (filteredCounties = []))
       .on("end", (result) => vis.filterBySelection(result, vis));
 
+    vis.countiesGroup = vis.g.append("g").attr("id", "counties");
+
     this.updateVis();
   }
 
@@ -152,9 +154,7 @@ class Choropleth {
       .range(["#ffffff", vis.config.color])
       .interpolate(d3.interpolateHcl);
 
-    vis.counties = vis.g
-      .append("g")
-      .attr("id", "counties")
+    vis.counties = vis.countiesGroup
       .selectAll("path")
       .data(topojson.feature(vis.us, vis.us.objects.counties).features)
       .join("path")
@@ -195,15 +195,14 @@ class Choropleth {
         const attrVal = d.properties[vis.attributeName];
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
-          <div class="tooltip-title">${d.properties.display_name}</div>
-          ${
-            attrVal == -1
-              ? "<div><i>No data available</i></div>"
-              : `<div><b>${
-                  attributes[vis.attributeName].label
-                }</b>: ${attrVal}</div>`
-          }
-          
+        <div class="tooltip-title">${d.properties.display_name}</div>
+        ${
+          attrVal == -1
+            ? "<div><i>No data available</i></div>"
+            : `<div><b>${
+                attributes[vis.attributeName].label
+              }</b>: ${attrVal}</div>`
+        }
         `);
       })
       .on("mousemove", function (event) {
