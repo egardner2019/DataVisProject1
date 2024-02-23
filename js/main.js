@@ -73,7 +73,13 @@ const tooltip = d3
   .style("visibility", "hidden");
 
 let filteredCounties, geoData, countiesData;
-let histogram1, histogram2, scatterplot, choropleth1, choropleth2;
+let histogram1,
+  histogram2,
+  barchart1,
+  barchart2,
+  scatterplot,
+  choropleth1,
+  choropleth2;
 let updateVisualizations;
 
 Promise.all([
@@ -163,9 +169,14 @@ Promise.all([
     filteredCounties = [];
 
     updateVisualizations = (currentVis) => {
+      const selectedAttr1 = attribute1Select.value;
+      const selectedAttr2 = attribute2Select.value;
+
       // Update all of the visualizations' content
-      histogram1.updateVis();
-      histogram2.updateVis();
+      if (selectedAttr1 === "urban_rural_status") barchart1.updateVis();
+      if (selectedAttr2 === "urban_rural_status") barchart2.updateVis();
+      if (selectedAttr1 !== "urban_rural_status") histogram1.updateVis();
+      if (selectedAttr2 !== "urban_rural_status") histogram2.updateVis();
       scatterplot.updateVis();
       choropleth1.updateVis();
       choropleth2.updateVis();
@@ -173,6 +184,10 @@ Promise.all([
       // Modify the brushes of the visualizations
       histogram1.brushG.call(histogram1.brush.move, null);
       histogram2.brushG.call(histogram2.brush.move, null);
+      if (currentVis != barchart1)
+        barchart1.brushG.call(barchart1.brush.move, null);
+      if (currentVis != barchart2)
+        barchart2.brushG.call(barchart2.brush.move, null);
       if (currentVis != scatterplot)
         scatterplot.brushG.call(scatterplot.brush.move, null);
       if (currentVis != choropleth1)
@@ -196,6 +211,8 @@ Promise.all([
       attribute2Select.value,
       2
     );
+    barchart1 = new Barchart({ parentElement: "#barchart1" });
+    barchart2 = new Barchart({ parentElement: "#barchart2" });
     scatterplot = new Scatterplot(
       {
         parentElement: "#scatterplot",
@@ -217,35 +234,54 @@ Promise.all([
       attribute2Select.value,
       2
     );
-    // TODO: add work for barchart for urban/rural status
 
     // Add the onchange events to the dropdowns
     attribute1Select.onchange = (event) => {
+      const selectedAttr = event.target.value;
+      const histogram1Element = document.getElementById("histogram1");
+      const barchart1Element = document.getElementById("barchart1");
+      if (selectedAttr === "urban_rural_status") {
+        histogram1Element.style.display = "none";
+        barchart1Element.style.display = "block";
+      } else {
+        histogram1Element.style.display = "block";
+        barchart1Element.style.display = "none";
+      }
+
       // Update the histogram for the first attribute
-      histogram1.attributeName = event.target.value;
+      histogram1.attributeName = selectedAttr;
 
       // Update the scatterplot
-      scatterplot.attribute1Name = event.target.value;
+      scatterplot.attribute1Name = selectedAttr;
 
       // Update the first choropleth map
-      choropleth1.attributeName = event.target.value;
+      choropleth1.attributeName = selectedAttr;
 
-      updateVisualizations(null)
+      updateVisualizations(null);
     };
     attribute2Select.onchange = (event) => {
+      const selectedAttr = event.target.value;
+      const histogram2Element = document.getElementById("histogram2");
+      const barchart2Element = document.getElementById("barchart2");
+      if (selectedAttr === "urban_rural_status") {
+        histogram2Element.style.display = "none";
+        barchart2Element.style.display = "block";
+      } else {
+        histogram2Element.style.display = "block";
+        barchart2Element.style.display = "none";
+      }
+
       // Update the histogram for the second attribute
-      histogram2.attributeName = event.target.value;
+      histogram2.attributeName = selectedAttr;
 
       // Update the scatterplot
-      scatterplot.attribute2Name = event.target.value;
+      scatterplot.attribute2Name = selectedAttr;
 
       // Update the second choropleth map
-      choropleth2.attributeName = event.target.value;
+      choropleth2.attributeName = selectedAttr;
 
-      updateVisualizations(null)
+      updateVisualizations(null);
     };
-
-    // TODO: Create the instances of the charts/graphs
   })
   .catch((error) => {
     console.error("Error loading the data", error);

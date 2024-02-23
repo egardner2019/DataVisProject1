@@ -1,14 +1,14 @@
-// Adapted from https://d3-graph-gallery.com/graph/histogram_binSize.html
-class Histogram {
-  constructor(_config, _attributeName, _num) {
+// Adapted from https://observablehq.com/@d3/bar-chart/2
+class Barchart {
+  constructor(_config) {
     this.config = {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
       containerHeight: _config.containerHeight || 200,
       margin: { top: 20, bottom: 50, right: 30, left: 50 },
     };
-    this.attributeName = _attributeName;
-    this.number = _num;
+    this.attributeName = "urban_rural_status";
+    this.statusTypes = ["Rural", "Small City", "Suburban", "Urban"];
 
     this.initVis();
   }
@@ -37,13 +37,34 @@ class Histogram {
         `translate(${vis.config.margin.left},${vis.config.margin.top})`
       );
 
-    vis.x = d3.scaleLinear().range([0, vis.config.containerWidth]);
+    vis.x = d3
+      .scaleBand()
+      .domain(vis.statusTypes)
+      .range([0, vis.config.containerWidth]);
     vis.xAxis = vis.svg
       .append("g")
-      .attr("transform", `translate(0,${vis.config.containerHeight})`);
+      .attr("transform", `translate(0,${vis.config.containerHeight})`)
+      .call(d3.axisBottom(vis.x));
 
     vis.y = d3.scaleLinear().range([vis.config.containerHeight, 0]);
     vis.yAxis = vis.svg.append("g");
+
+    // X axis label
+    vis.svg
+      .selectAll("text.xLabel")
+      .data([vis.attributeName])
+      .join("text")
+      .attr("class", "xLabel")
+      .attr(
+        "transform",
+        "translate(" +
+          vis.config.containerWidth / 2 +
+          " ," +
+          (vis.config.containerHeight + 35) +
+          ")"
+      )
+      .style("text-anchor", "middle")
+      .text(attributes[vis.attributeName].label);
 
     // Y axis label
     vis.svg
@@ -83,57 +104,41 @@ class Histogram {
             )))
     );
 
-    vis.x.domain([0, d3.max(vis.data, (d) => d[vis.attributeName])]);
-    vis.xAxis.call(d3.axisBottom(vis.x));
+    // Count the number of counties of each type
+    let statusCounts = [0, 0, 0, 0];
+    vis.data.forEach(
+      (county) =>
+        statusCounts[vis.statusTypes.indexOf(county[vis.attributeName])]++
+    );
 
-    const histogram = d3
-      .histogram()
-      .value((d) => d[vis.attributeName])
-      .domain(vis.x.domain())
-      .thresholds(vis.x.ticks(50));
-
-    const bins = histogram(vis.data);
-
-    vis.y.domain([0, d3.max(bins, (d) => d.length)]);
+    vis.y.domain([0, Math.max(...statusCounts)]);
     vis.yAxis.call(d3.axisLeft(vis.y));
 
-    // X axis label
     vis.svg
-      .selectAll("text.xLabel")
-      .data([vis.attributeName])
-      .join("text")
-      .attr("class", "xLabel")
-      .attr(
-        "transform",
-        "translate(" +
-          vis.config.containerWidth / 2 +
-          " ," +
-          (vis.config.containerHeight + 35) +
-          ")"
-      )
-      .style("text-anchor", "middle")
-      .text(attributes[vis.attributeName].label);
-
-    vis.svg
-      .selectAll(`rect.bar-${this.number}`)
-      .data(bins)
+      .selectAll("rect.barchart-bar")
+      .data(statusCounts)
       .join("rect")
-      .attr("class", `bar-${this.number}`)
-      .attr("x", 1)
-      .attr("transform", (d) => `translate(${vis.x(d.x0)}, ${vis.y(d.length)})`)
-      .attr("width", (d) => vis.x(d.x1) - vis.x(d.x0))
-      .attr("height", (d) => vis.config.containerHeight - vis.y(d.length))
+      .attr("class", "barchart-bar")
+      .attr("x", (d, index) => vis.x(vis.statusTypes[index]))
+      .attr("y", (d) => vis.y(d))
+      .attr("width", vis.x.bandwidth())
+      .attr("height", (d) => vis.config.containerHeight - vis.y(d))
       .style("fill", attributes[vis.attributeName].color);
 
     // The following code was modified from https://observablehq.com/@giorgiofighera/histogram-with-tooltips-and-bars-highlighted-on-mouse-over
-    d3.selectAll(`rect.bar-${this.number}`)
+    d3.selectAll("rect.barchart-bar")
       .on("mouseover", function (event, d) {
+        const mouseLoc = d3.pointer(event)[0];
+        const bandwidth = vis.x.bandwidth();
+        const hoveredStatus = vis.statusTypes.find((type) => {
+          const barStart = vis.x(type);
+          const barEnd = barStart + bandwidth;
+          return barEnd >= mouseLoc && barStart <= mouseLoc;
+        });
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
-          <div>${
-            d.length
-          } ${d.length === 1 ? "county" : "counties"} between ${d.x0}-${d.x1}</div>
-        `);
+            <div>${d} ${d === 1 ? "county is" : "counties are"} considered ${hoveredStatus.toLowerCase()}.</div>
+            `);
       })
       .on("mousemove", function (event) {
         tooltip
@@ -175,15 +180,21 @@ class Histogram {
       // Reset the counties filter (include them all)
       filteredCounties = [];
     } else {
+      const brushStart = extent[0];
+      const brushEnd = extent[1];
+      const bandwidth = vis.x.bandwidth();
+      const filteredStatuses = [];
+      vis.statusTypes.forEach((type) => {
+        const barStart = vis.x(type);
+        const barEnd = barStart + bandwidth;
+
+        if (barEnd >= brushStart && barStart <= brushEnd)
+          filteredStatuses.push(type);
+      });
+
       // Filter the counties
-      const range = [vis.x.invert(extent[0]), vis.x.invert(extent[1])];
-
       filteredCounties = countiesData
-        .filter((d) => {
-          const attrVal = d[vis.attributeName];
-
-          return attrVal >= range[0] && attrVal <= range[1];
-        })
+        .filter((d) => filteredStatuses.includes(d[vis.attributeName]))
         .map((d) => d.cnty_fips);
     }
 
