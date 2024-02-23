@@ -6,7 +6,7 @@ class ConnectedScatterplot {
       containerWidth: _config.containerWidth || 450,
       containerHeight: _config.containerHeight || 200,
       color: _config.color || "#474242",
-      margin: { top: 20, bottom: 50, right: 50, left: 65 },
+      margin: { top: 20, bottom: 50, right: 110, left: 65 },
     };
     this.attributeName = _attributeName;
 
@@ -48,7 +48,7 @@ class ConnectedScatterplot {
     vis.brushG = vis.svg.append("g").attr("class", "brush");
 
     vis.brush = d3
-      .brush()
+      .brushX()
       .extent([
         [0, 0],
         [vis.config.containerWidth, vis.config.containerHeight],
@@ -73,7 +73,7 @@ class ConnectedScatterplot {
       .attr(
         "transform",
         (d, index) =>
-          `translate(${vis.config.containerWidth - 40},${index * 22})`
+          `translate(${vis.config.containerWidth + 15},${index * 22})`
       );
     legend
       .append("rect")
@@ -137,8 +137,6 @@ class ConnectedScatterplot {
       });
     });
 
-    console.log(lineData);
-
     // Find the maximum Y value for the scatterplot
     const allPointsArrays = lineData.flatMap((group) => group.points || []);
     const maxYValue = allPointsArrays.reduce((maxLength, pointsArray) => {
@@ -183,7 +181,6 @@ class ConnectedScatterplot {
       .style("text-anchor", "middle")
       .text(attributes[vis.attributeName].label);
 
-    console.log(lineData);
     // Add lines
     vis.line = d3
       .line()
@@ -219,9 +216,7 @@ class ConnectedScatterplot {
       .on("mouseover", function (event, d) {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
-            <div>${
-              d.counties.length
-            } counties at approximately ${Math.round(vis.x.invert(d3.pointer(event)[0]) * 100) / 100}</div>
+            <div>${d.counties.length} counties between ${d.x0} and ${d.x1}</div>
           `);
       })
       .on("mousemove", function (event) {
@@ -264,23 +259,14 @@ class ConnectedScatterplot {
       // Reset the counties filter (include them all)
       filteredCounties = [];
     } else {
-      // TODO: MODIFY THIS LOGIC SO IT WORKS FOR THE CONNECTED SCATTERPLOT
-
       // Filter the counties
-      const xRange = [vis.x.invert(extent[0][0]), vis.x.invert(extent[1][0])];
-      const yRange = [vis.y.invert(extent[1][1]), vis.y.invert(extent[0][1])];
+      const range = [vis.x.invert(extent[0]), vis.x.invert(extent[1])];
 
       filteredCounties = countiesData
         .filter((d) => {
-          const attr1Val = d[vis.attribute1Name];
-          const attr2Val = d[vis.attribute2Name];
+          const attrVal = d[vis.attributeName];
 
-          return (
-            attr1Val >= yRange[0] &&
-            attr1Val <= yRange[1] &&
-            attr2Val >= xRange[0] &&
-            attr2Val <= xRange[1]
-          );
+          return attrVal >= range[0] && attrVal <= range[1];
         })
         .map((d) => d.cnty_fips);
     }
