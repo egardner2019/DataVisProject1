@@ -78,6 +78,7 @@ let histogram1,
   barchart1,
   barchart2,
   scatterplot,
+  connectedScatterplot,
   choropleth1,
   choropleth2;
 let updateVisualizations;
@@ -177,13 +178,23 @@ Promise.all([
       if (selectedAttr2 === "urban_rural_status") barchart2.updateVis();
       if (selectedAttr1 !== "urban_rural_status") histogram1.updateVis();
       if (selectedAttr2 !== "urban_rural_status") histogram2.updateVis();
-      scatterplot.updateVis();
+      if (
+        selectedAttr1 === "urban_rural_status" ||
+        selectedAttr2 === "urban_rural_status"
+      )
+        connectedScatterplot.updateVis();
+      if (
+        selectedAttr1 !== "urban_rural_status" ||
+        selectedAttr2 !== "urban_rural_status"
+      )
+        scatterplot.updateVis();
       choropleth1.updateVis();
       choropleth2.updateVis();
 
       // Modify the brushes of the visualizations
       histogram1.brushG.call(histogram1.brush.move, null);
       histogram2.brushG.call(histogram2.brush.move, null);
+      connectedScatterplot.brushG.call(connectedScatterplot.brush.move, null);
       if (currentVis != barchart1)
         barchart1.brushG.call(barchart1.brush.move, null);
       if (currentVis != barchart2)
@@ -220,6 +231,14 @@ Promise.all([
       attribute1Select.value,
       attribute2Select.value
     );
+    connectedScatterplot = new ConnectedScatterplot(
+      {
+        parentElement: "#connectedScatterplot",
+      },
+      attribute1Select.value !== "urban_rural_status"
+        ? attribute1Select.value
+        : attribute2Select.value
+    );
     choropleth1 = new Choropleth(
       {
         parentElement: "#choropleth1",
@@ -240,12 +259,38 @@ Promise.all([
       const selectedAttr = event.target.value;
       const histogram1Element = document.getElementById("histogram1");
       const barchart1Element = document.getElementById("barchart1");
+      const scatterplotElement = document.getElementById("scatterplot");
+      const connectedScatterplotElement = document.getElementById(
+        "connectedScatterplot"
+      );
+
+      // If the first attribute is for the urban/rural status,
+      //  show the barchart instead of the histogram for attribute 1
       if (selectedAttr === "urban_rural_status") {
         histogram1Element.style.display = "none";
         barchart1Element.style.display = "block";
       } else {
         histogram1Element.style.display = "block";
         barchart1Element.style.display = "none";
+      }
+
+      // If either attribute is for the urban/rural status,
+      //  show the connected scatterplot instead of the regular scatterplot
+      if (
+        selectedAttr === "urban_rural_status" ||
+        attribute2Select.value === "urban_rural_status"
+      ) {
+        scatterplotElement.style.display = "none";
+        connectedScatterplotElement.style.display = "block";
+
+        // Set the attribute for the connected scatterplot to the non-urban/rural attribute
+        connectedScatterplot.attributeName =
+          selectedAttr === "urban_rural_status"
+            ? attribute2Select.value
+            : selectedAttr;
+      } else {
+        scatterplotElement.style.display = "block";
+        connectedScatterplotElement.style.display = "none";
       }
 
       // Update the histogram for the first attribute
@@ -263,12 +308,38 @@ Promise.all([
       const selectedAttr = event.target.value;
       const histogram2Element = document.getElementById("histogram2");
       const barchart2Element = document.getElementById("barchart2");
+      const scatterplotElement = document.getElementById("scatterplot");
+      const connectedScatterplotElement = document.getElementById(
+        "connectedScatterplot"
+      );
+
+      // If the second attribute is for the urban/rural status,
+      //  show the barchart instead of the histogram for attribute 2
       if (selectedAttr === "urban_rural_status") {
         histogram2Element.style.display = "none";
         barchart2Element.style.display = "block";
       } else {
         histogram2Element.style.display = "block";
         barchart2Element.style.display = "none";
+      }
+
+      // If either attribute is for the urban/rural status,
+      //  show the connected scatterplot instead of the regular scatterplot
+      if (
+        selectedAttr === "urban_rural_status" ||
+        attribute1Select.value === "urban_rural_status"
+      ) {
+        scatterplotElement.style.display = "none";
+        connectedScatterplotElement.style.display = "block";
+
+        // Set the attribute for the connected scatterplot to the non-urban/rural attribute
+        connectedScatterplot.attributeName =
+          selectedAttr === "urban_rural_status"
+            ? attribute1Select.value
+            : selectedAttr;
+      } else {
+        scatterplotElement.style.display = "block";
+        connectedScatterplotElement.style.display = "none";
       }
 
       // Update the histogram for the second attribute

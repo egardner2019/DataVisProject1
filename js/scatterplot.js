@@ -110,10 +110,10 @@ class Scatterplot {
       .text(attributes[vis.attribute1Name].label);
 
     vis.svg
-      .selectAll("circle.point")
+      .selectAll("circle.regularPoint")
       .data(vis.data)
       .join("circle")
-      .attr("class", "point")
+      .attr("class", "regularPoint")
       .attr("cx", (d) => vis.x(d[vis.attribute2Name]))
       .attr("cy", (d) => vis.y(d[vis.attribute1Name]))
       .attr("r", 2)
@@ -131,7 +131,7 @@ class Scatterplot {
       });
 
     // The following code was modified from https://observablehq.com/@giorgiofighera/histogram-with-tooltips-and-bars-highlighted-on-mouse-over
-    d3.selectAll("circle")
+    d3.selectAll("circle.regularPoint")
       .on("mouseover", function (event, d) {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
