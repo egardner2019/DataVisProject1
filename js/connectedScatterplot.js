@@ -164,12 +164,7 @@ class ConnectedScatterplot {
       .join("text")
       .attr("class", "yLabel")
       .attr("transform", "rotate(-90)")
-      .attr(
-        "y",
-        0 -
-          vis.config.margin.left +
-          (vis.attributeName === "median_household_income" ? 0 : 15)
-      )
+      .attr("y", 0 - vis.config.margin.left + 20)
       .attr("x", 0 - vis.config.containerHeight / 2)
       .attr("dy", "1em")
       .style("text-anchor", "middle")
@@ -227,7 +222,12 @@ class ConnectedScatterplot {
       .on("mouseover", function (event, d) {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
-            <div>${d.counties.length} counties between ${d.x0} and ${d.x1}</div>
+            <div class="tooltip-title">${
+              d.counties.length
+            } ${d.counties.length === 1 ? "County" : "Counties"}</div>
+            <div><b>${
+              attributes[vis.attributeName].label
+            }</b>: ${d.x0} to ${d.x1}</div>
           `);
       })
       .on("mousemove", function (event) {

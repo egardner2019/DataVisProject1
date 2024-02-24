@@ -130,9 +130,12 @@ class Histogram {
       .on("mouseover", function (event, d) {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
-          <div>${
-            d.length
-          } ${d.length === 1 ? "county" : "counties"} between ${d.x0}-${d.x1}</div>
+        <div class="tooltip-title">${
+          d.length
+        } ${d.length === 1 ? "County" : "Counties"}</div>
+          <div><b>${
+            attributes[vis.attributeName].label
+          }</b>: ${d.x0}-${d.x1}</div>
         `);
       })
       .on("mousemove", function (event) {
