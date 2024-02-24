@@ -5,7 +5,6 @@ class Scatterplot {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
       containerHeight: _config.containerHeight || 200,
-      color: _config.color || "#474242",
       margin: { top: 20, bottom: 50, right: 50, left: 65 },
     };
     this.attribute1Name = _attribute1Name;
@@ -117,7 +116,7 @@ class Scatterplot {
       .attr("cx", (d) => vis.x(d[vis.attribute2Name]))
       .attr("cy", (d) => vis.y(d[vis.attribute1Name]))
       .attr("r", 2)
-      .style("fill", vis.config.color)
+      .style("fill", `color-mix(in srgb, ${attributes[vis.attribute1Name].color}, ${attributes[vis.attribute2Name].color}`)
       .style("fill-opacity", (d) => {
         if (filteredCounties.length !== 0) {
           if (

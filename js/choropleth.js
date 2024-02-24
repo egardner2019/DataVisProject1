@@ -141,18 +141,29 @@ class Choropleth {
       .attr("class", "legend-title")
       .attr("dy", ".35em")
       .attr("y", -10)
-      .text(attributes[vis.attributeName].label);
+      .text(attributes[vis.attributeName].label)
+      .style(
+        "display",
+        vis.attributeName === "urban_rural_status" ? "none" : "block"
+      );
 
     const attributeExtent = d3.extent(
       filteredData,
       (d) => d.properties[vis.attributeName]
     );
 
-    vis.colorScale = d3
-      .scaleLinear()
-      .domain(attributeExtent)
-      .range(["#ffffff", vis.config.color])
-      .interpolate(d3.interpolateHcl);
+    if (vis.attributeName === "urban_rural_status") {
+      vis.colorScale = d3
+        .scaleOrdinal()
+        .domain(["Rural", "Small City", "Suburban", "Urban"])
+        .range(["#f3daf0", "#e7b5e1", "#db80d3", "#c447b6"]);
+    } else {
+      vis.colorScale = d3
+        .scaleLinear()
+        .domain(attributeExtent)
+        .range(["#ffffff", vis.config.color])
+        .interpolate(d3.interpolateHcl);
+    }
 
     vis.counties = vis.countiesGroup
       .selectAll("path")
@@ -160,34 +171,17 @@ class Choropleth {
       .join("path")
       .attr("d", vis.path)
       .attr("fill", (d) => {
-        // TODO: simplify this to remove duplication
-        if (filteredCounties.length !== 0) {
-          if (
-            filteredCounties.find(
+        const coloredOrStripe =
+          d.properties[vis.attributeName] != -1
+            ? vis.colorScale(d.properties[vis.attributeName])
+            : "url(#lightstripe)";
+        return filteredCounties.length !== 0
+          ? filteredCounties.find(
               (filteredCounty) => filteredCounty == d.properties.cnty_fips
             )
-          ) {
-            if (
-              d.properties[vis.attributeName] &&
-              d.properties[vis.attributeName] != -1
-            ) {
-              return vis.colorScale(d.properties[vis.attributeName]);
-            } else {
-              return "url(#lightstripe)";
-            }
-          } else {
-            return "gray";
-          }
-        } else {
-          if (
-            d.properties[vis.attributeName] &&
-            d.properties[vis.attributeName] != -1
-          ) {
-            return vis.colorScale(d.properties[vis.attributeName]);
-          } else {
-            return "url(#lightstripe)";
-          }
-        }
+            ? coloredOrStripe
+            : "gray"
+          : coloredOrStripe;
       });
 
     vis.counties
@@ -246,6 +240,41 @@ class Choropleth {
       },
     ];
 
+    vis.legend
+      .selectAll("rect.choroplethColor")
+      .data(["Rural", "Small City", "Suburban", "Urban"])
+      .join("rect")
+      .attr("class", "choroplethColor")
+      .attr("width", 18)
+      .attr("height", 18)
+      .attr("class", "choroplethColor")
+      .style("fill", (d) => vis.colorScale(d))
+      .style("stroke", (d) => vis.colorScale(d))
+      .attr(
+        "transform",
+        (d, index) => `translate(${vis.config.margin.left + index * 100},${0})`
+      )
+      .style(
+        "display",
+        vis.attributeName === "urban_rural_status" ? "block" : "none"
+      );
+    vis.legend
+      .selectAll("text.choroplethColorLabel")
+      .data(["Rural", "Small City", "Suburban", "Urban"])
+      .join("text")
+      .attr("class", "choroplethColorLabel")
+      .attr("x", 22)
+      .attr("y", 14)
+      .text((d) => d)
+      .attr(
+        "transform",
+        (d, index) => `translate(${vis.config.margin.left + index * 100},${0})`
+      )
+      .style(
+        "display",
+        vis.attributeName === "urban_rural_status" ? "block" : "none"
+      );
+
     // Add legend labels
     vis.legend
       .selectAll(".legend-label")
@@ -258,7 +287,11 @@ class Choropleth {
       .attr("x", (d, index) => {
         return index == 0 ? 0 : vis.config.legendRectWidth;
       })
-      .text((d) => Math.round(d.value * 10) / 10);
+      .text((d) => Math.round(d.value * 10) / 10)
+      .style(
+        "display",
+        vis.attributeName === "urban_rural_status" ? "none" : "block"
+      );
 
     // Update gradient for legend
     vis.linearGradient
@@ -266,9 +299,18 @@ class Choropleth {
       .data(vis.legendStops)
       .join("stop")
       .attr("offset", (d) => d.offset)
-      .attr("stop-color", (d) => d.color);
+      .attr("stop-color", (d) => d.color)
+      .style(
+        "display",
+        vis.attributeName === "urban_rural_status" ? "none" : "block"
+      );
 
-    vis.legendRect.attr("fill", `url(#legend-gradient-${vis.number})`);
+    vis.legendRect
+      .attr("fill", `url(#legend-gradient-${vis.number})`)
+      .style(
+        "display",
+        vis.attributeName === "urban_rural_status" ? "none" : "block"
+      );
 
     vis.brushG.call(vis.brush);
   }

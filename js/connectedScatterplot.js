@@ -5,7 +5,6 @@ class ConnectedScatterplot {
       parentElement: _config.parentElement,
       containerWidth: _config.containerWidth || 450,
       containerHeight: _config.containerHeight || 200,
-      color: _config.color || "#474242",
       margin: { top: 20, bottom: 50, right: 110, left: 65 },
     };
     this.attributeName = _attributeName;
@@ -57,41 +56,53 @@ class ConnectedScatterplot {
       .on("start", () => (filteredCounties = []))
       .on("end", (result) => vis.filterBySelection(result, vis));
 
-    vis.colorScale = d3
-      .scaleOrdinal()
-      .domain(["Rural", "Small City", "Suburban", "Urban"])
-      .range(d3.schemeSet2);
-
-    // Add legend
-    vis.legend = vis.svg.append("g").attr("class", "legend");
-    const legend = vis.legend
-      .selectAll(".legend")
-      .data(["Rural", "Small City", "Suburban", "Urban"])
-      .enter()
+    vis.legend = vis.svg
       .append("g")
       .attr("class", "legend")
       .attr(
         "transform",
-        (d, index) =>
-          `translate(${vis.config.containerWidth + 15},${index * 22})`
+        () => `translate(${vis.config.containerWidth + 15},${0})`
       );
-    legend
-      .append("rect")
-      .attr("width", 18)
-      .attr("height", 18)
-      .style("fill", (d) => vis.colorScale(d))
-      .style("stroke", (d) => vis.colorScale(d));
-    legend
-      .append("text")
-      .attr("x", 22)
-      .attr("y", 14)
-      .text((d) => d);
 
     this.updateVis();
   }
 
   updateVis() {
     const vis = this;
+
+    const getMixedColor = (color) =>
+      `color-mix(in srgb, ${color}, ${attributes[vis.attributeName].color} 30%`;
+    const colorRange = [
+      getMixedColor("#f3daf0"),
+      getMixedColor("#e7b5e1"),
+      getMixedColor("#db80d3"),
+      getMixedColor("#c447b6"),
+    ];
+    const types = ["Rural", "Small City", "Suburban", "Urban"];
+    vis.colorScale = d3.scaleOrdinal().domain(types).range(colorRange);
+    const colorLabelMap = types.map((type, index) => {
+      return { label: type, color: colorRange[index] };
+    });
+
+    vis.legend
+      .selectAll("rect.colorRect")
+      .data(colorLabelMap)
+      .join("rect")
+      .attr("class", "colorRect")
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", (d) => d.color)
+      .style("stroke", (d) => d.color)
+      .attr("transform", (d, index) => `translate(${0},${index * 22})`);
+    vis.legend
+      .selectAll("text.colorLabel")
+      .data(colorLabelMap)
+      .join("text")
+      .attr("x", 22)
+      .attr("y", 14)
+      .attr("class", "colorLabel")
+      .text((d) => d.label)
+      .attr("transform", (d, index) => `translate(${0},${index * 22})`);
 
     vis.data = countiesData.filter(
       (d) =>
@@ -184,7 +195,7 @@ class ConnectedScatterplot {
     // Add lines
     vis.line = d3
       .line()
-      .x((d, index) => vis.x((d.x0 + d.x1) / 2))
+      .x((d) => vis.x((d.x0 + d.x1) / 2))
       .y((d) => vis.y(d.counties.length));
     vis.svg
       .selectAll("path.line")
@@ -207,7 +218,7 @@ class ConnectedScatterplot {
       .data((d) => d.points)
       .join("circle")
       .attr("class", "connectedPoint")
-      .attr("cx", (d, index) => vis.x((d.x0 + d.x1) / 2))
+      .attr("cx", (d) => vis.x((d.x0 + d.x1) / 2))
       .attr("cy", (d) => vis.y(d.counties.length))
       .attr("r", 5);
 
