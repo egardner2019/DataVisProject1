@@ -91,26 +91,7 @@ Promise.all([
     geoData = data[0];
     countiesData = data[1];
 
-    const attributesAvailable = [
-      "cnty_fips",
-      "display_name",
-      "poverty_perc",
-      "median_household_income",
-      "education_less_than_high_school_percent",
-      "air_quality",
-      "park_access",
-      "percent_inactive",
-      "percent_smoking",
-      "urban_rural_status",
-      "elderly_percentage",
-      "number_of_hospitals",
-      "number_of_primary_care_physicians",
-      "percent_no_heath_insurance",
-      "percent_high_blood_pressure",
-      "percent_coronary_heart_disease",
-      "percent_stroke",
-      "percent_high_cholesterol",
-    ];
+    const attributesAvailable = Object.keys(countiesData[0]);
 
     // Process the countiesData
     countiesData.forEach((d) => {
