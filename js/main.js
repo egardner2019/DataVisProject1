@@ -114,29 +114,16 @@ Promise.all([
 
     // Process the countiesData
     countiesData.forEach((d) => {
-      // Convert to numbers
-      d.cnty_fips = +d.cnty_fips;
-      d.display_name = d.display_name
-        .replaceAll('"', "")
-        .replaceAll("(", "")
-        .replaceAll(")", "");
-      d.poverty_perc = +d.poverty_perc;
-      d.median_household_income = +d.median_household_income;
-      d.education_less_than_high_school_percent =
-        +d.education_less_than_high_school_percent;
-      d.air_quality = +d.air_quality;
-      d.park_access = +d.park_access;
-      d.percent_inactive = +d.percent_inactive;
-      d.percent_smoking = +d.percent_smoking;
-      d.elderly_percentage = +d.elderly_percentage;
-      d.number_of_hospitals = +d.number_of_hospitals;
-      d.number_of_primary_care_physicians =
-        +d.number_of_primary_care_physicians;
-      d.percent_no_heath_insurance = +d.percent_no_heath_insurance;
-      d.percent_high_blood_pressure = +d.percent_high_blood_pressure;
-      d.percent_coronary_heart_disease = +d.percent_coronary_heart_disease;
-      d.percent_stroke = +d.percent_stroke;
-      d.percent_high_cholesterol = +d.percent_high_cholesterol;
+      attributesAvailable.forEach((attribute) => {
+        if (attribute === "display_name")
+          newVal = d[attribute]
+            .replaceAll('"', "")
+            .replaceAll("(", "")
+            .replaceAll(")", "");
+        else if (attribute === "urban_rural_status") newVal = d[attribute];
+        else newVal = +d[attribute];
+        d[attribute] = newVal;
+      });
     });
 
     // Combine the datasets
