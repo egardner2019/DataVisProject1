@@ -227,7 +227,7 @@ class ConnectedScatterplot {
             } ${d.counties.length === 1 ? "County" : "Counties"}</div>
             <div><b>${
               attributes[vis.attributeName].label
-            }</b>: ${d.x0} to ${d.x1}</div>
+            }</b>: ${d.x0}-${d.x1}</div>
           `);
       })
       .on("mousemove", function (event) {
