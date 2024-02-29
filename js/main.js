@@ -135,6 +135,25 @@ Promise.all([
       if (index == 1) attribute2Select.value = attribute[0];
     });
 
+    // Ensure that the user cannot select the same attribute in both select elements
+    const disableSelectedAttribute = () => {
+      // Loop through the options in the first select element (attribute 1)
+      for (let i = 0; i < attribute1Select.options.length; i++) {
+        // Disable the option that's selected for attribute 2 and enable everything else
+        attribute1Select.options[i].disabled =
+          attribute1Select.options[i].value === attribute2Select.value;
+      }
+
+      // Loop through the options in the second select element (attribute 2)
+      for (let i = 0; i < attribute2Select.options.length; i++) {
+        // Disable the option that's selected for attribute 1 and enable everything else
+        attribute2Select.options[i].disabled =
+          attribute2Select.options[i].value === attribute1Select.value;
+      }
+    };
+
+    disableSelectedAttribute();
+
     filteredCounties = [];
 
     updateVisualizations = (currentVis) => {
@@ -224,6 +243,7 @@ Promise.all([
 
     // Add the onchange events to the dropdowns
     attribute1Select.onchange = (event) => {
+      disableSelectedAttribute();
       const selectedAttr = event.target.value;
       const histogram1Element = document.getElementById("histogram1");
       const barchart1Element = document.getElementById("barchart1");
@@ -273,6 +293,7 @@ Promise.all([
       updateVisualizations(null);
     };
     attribute2Select.onchange = (event) => {
+      disableSelectedAttribute();
       const selectedAttr = event.target.value;
       const histogram2Element = document.getElementById("histogram2");
       const barchart2Element = document.getElementById("barchart2");
