@@ -138,7 +138,7 @@ class Barchart {
         d3.select(this).attr("stroke-width", "2").attr("stroke", "white");
         tooltip.style("visibility", "visible").html(`
             <div class="tooltip-title">${d} ${d === 1 ? "County" : "Counties"}</div>
-            <div>Status: ${hoveredStatus}</div>
+            <div><b>Status</b>: ${hoveredStatus}</div>
             `);
       })
       .on("mousemove", function (event) {
