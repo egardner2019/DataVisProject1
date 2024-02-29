@@ -161,8 +161,7 @@ class Choropleth {
       vis.colorScale = d3
         .scaleLinear()
         .domain(attributeExtent)
-        .range(["#ffffff", vis.config.color])
-        .interpolate(d3.interpolateHcl);
+        .range(["#ffffff", vis.config.color]);
     }
 
     vis.counties = vis.countiesGroup
